@@ -231,7 +231,7 @@ static bool update_binary_has_legacy_properties(const char *binary) {
 #endif
 
 static int Run_Update_Binary(const char *path, ZipWrap *Zip, int* wipe_cache, zip_type ztype) {
-	int ret_val, pipe_fd[2], status, zip_verify;
+	int ret_val, pipe_fd[2], status, zip_verify, aroma_running;
 	char buffer[1024];
 	FILE* child_data;
 
@@ -277,6 +277,7 @@ static int Run_Update_Binary(const char *path, ZipWrap *Zip, int* wipe_cache, zi
 	}
 	close(pipe_fd[1]);
 
+	aroma_running = 0;
 	*wipe_cache = 0;
 
 	DataManager::GetValue(TW_SIGNED_ZIP_VERIFY_VAR, zip_verify);
@@ -303,7 +304,15 @@ static int Run_Update_Binary(const char *path, ZipWrap *Zip, int* wipe_cache, zi
 		} else if (strcmp(command, "ui_print") == 0) {
 			char* display_value = strtok(NULL, "\n");
 			if (display_value) {
+				if ((strcmp(display_value, "AROMA Installer Finished...") == 0) && (aroma_running == 1)) {
+					aroma_running = 0;
+					gui_changeOverlay("");
+				}
 				gui_print("%s", display_value);
+				if ((strcmp(display_value, "(c) 2013 by amarullz xda-developers") == 0) && (aroma_running == 0)) {
+					aroma_running = 1;
+					gui_changeOverlay("black_out");
+				}
 			} else {
 				gui_print("\n");
 			}
@@ -320,6 +329,11 @@ static int Run_Update_Binary(const char *path, ZipWrap *Zip, int* wipe_cache, zi
 	fclose(child_data);
 
 	int waitrc = TWFunc::Wait_For_Child(pid, &status, "Updater");
+
+	// Should never happen, but in case of crash or other unexpected condition
+	if (aroma_running == 1) {
+		gui_changeOverlay("");
+	}
 
 #ifndef TW_NO_LEGACY_PROPS
 	/* Unset legacy properties */
