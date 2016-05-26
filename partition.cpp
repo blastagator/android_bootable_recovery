@@ -382,8 +382,8 @@ bool TWPartition::Process_Fstab_Line(const char *fstab_line, bool Display_Error)
 			Storage_Name = Display_Name;
 			Mount_Read_Only = true;
 		}
-#ifdef TW_EXTERNAL_STORAGE_PATH
-		if (Mount_Point == EXPAND(TW_EXTERNAL_STORAGE_PATH)) {
+#if defined(TW_EXTERNAL_STORAGE_MOUNT_POINT) && defined(TW_EXTERNAL_STORAGE_PATH)
+		if (Mount_Point == EXPAND(TW_EXTERNAL_STORAGE_MOUNT_POINT)) {
 			Is_Storage = true;
 			Storage_Path = EXPAND(TW_EXTERNAL_STORAGE_PATH);
 			Removable = true;
@@ -395,8 +395,8 @@ bool TWPartition::Process_Fstab_Line(const char *fstab_line, bool Display_Error)
 			Wipe_Available_in_GUI = true;
 #endif
 		}
-#ifdef TW_INTERNAL_STORAGE_PATH
-		if (Mount_Point == EXPAND(TW_INTERNAL_STORAGE_PATH)) {
+#if defined(TW_INTERNAL_STORAGE_MOUNT_POINT) && defined(TW_INTERNAL_STORAGE_PATH)
+		if (Mount_Point == EXPAND(TW_INTERNAL_STORAGE_MOUNT_POINT)) {
 			Is_Storage = true;
 			Is_Settings_Storage = true;
 			Storage_Path = EXPAND(TW_INTERNAL_STORAGE_PATH);
