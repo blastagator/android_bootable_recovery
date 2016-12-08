@@ -297,6 +297,15 @@ get_args(int *argc, char ***argv) {
             (*argv)[0] = strdup(arg);
             for (*argc = 1; *argc < MAX_ARGS; ++*argc) {
                 if ((arg = strtok(NULL, "\n")) == NULL) break;
+#ifdef TW_IGNORE_MISC_WIPE_DATA
+                if (!strcmp(arg, "--wipe_data")) {
+                    (*argv)[*argc] = "";    // Get rid of the undesired command
+                    --*argc;                // Back up, so if there is another command, blank command is overwritten
+                    LOGI("Undesired bootloader control block command detected!\n");
+                    LOGI("Ignoring undesired command.\n");
+                }
+                else
+#endif
                 (*argv)[*argc] = strdup(arg);
             }
             LOGI("Got arguments from boot message\n");
